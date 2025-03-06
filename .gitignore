@@ -35,3 +35,5 @@
 .idea/misc.xml
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/alatavica.iml
+*.pyc
+.idea/inspectionProfiles/Project_Default.xml
