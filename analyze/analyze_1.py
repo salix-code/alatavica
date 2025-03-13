@@ -4,31 +4,20 @@ from datetime import datetime, timedelta
 
 def main():
     db = FDatabase()
-    table:FTable = db.get_table("6618","1d")
+    table:FTable = db.get_table("6618.HK","1d")
     rows = table.fetch_rows()
     rows.sort(key = lambda row: datetime.strptime(row[0],'%Y-%m-%d %H:%M:%S'))
+    #print(rows)
+    for i in range(0,len(rows) - 1):
+        if rows[i][5] > rows[i + 1][5] and rows[i][3] < rows[i + 1][3]:
+            if i < len(rows) - 2:
+                if rows[i + 2][3] < rows[i][3] :
+                    print(rows[i])
+                    print(rows[i + 1])
+                    print(rows[i + 2])
 
-    n = 2
-    pinbar = []
-    for i in range(0,len(rows)):
-        row = rows[i]
-        open_price = row[1]
-        close_price = row[2]
-        high_price = row[3]
-        low_price = row[4]
-        if open_price < close_price:
-            if n * (open_price - low_price) > (close_price - open_price) and (high_price - close_price) / (close_price - open_price) < 0.01:
-                pinbar.append(i)
-        elif open_price > close_price:
-            if n * (close_price - low_price) > (open_price - close_price) and (high_price - close_price) / (open_price - close_price) < 0.01:
-                pinbar.append(i)
-        else:
-            if high_price - open_price < (open_price - low_price) * 0.5:
-                pinbar.append(i)
 
-    for i in pinbar:
-        for j in range(0,5):
-            print(i,rows[i][0],rows[i+j][1:])
+
 
 if __name__ == '__main__':
     main()

@@ -18,7 +18,7 @@ class FDownloadRecentlyPolicy:
         download_setting = FMinuteDownloadSetting(self.interval)
         down_days = timedelta(days = 0)
         end_day = yesterday
-        while down_days.days < 360:
+        while down_days.days < 720:
             download_setting.since(end_day)
             start_day = download_setting.get_start_day()
             down_days = yesterday - start_day
@@ -40,7 +40,8 @@ class FDownloadRecentlyPolicy:
 
 
 def main():
-    p = FDownloadRecentlyPolicy("NIO","1d")
+    #p = FDownloadRecentlyPolicy("NIO","1d")
+    p = FDownloadRecentlyPolicy("6618.HK","1d")
     p.download()
     p.close()
 

@@ -1,5 +1,4 @@
-
-
+import os
 import sqlite3
 
 class FTable:
@@ -40,7 +39,10 @@ class FTable:
 
 class FDatabase:
     def __init__(self):
-        self.conn = sqlite3.connect('20250312.db')
+        name = '20250312.db'
+        path_name = os.path.join(os.path.dirname(os.path.dirname(__file__)),name)
+
+        self.conn = sqlite3.connect(path_name)
         self.tables = dict()
 
     def get_table(self,ticker_symbol:str,interval:str) -> FTable:
@@ -68,7 +70,7 @@ class FDatabase:
     def load_table(self,table_name):
         table = self.tables[table_name]
         cursor = self.conn.cursor()
-        select_sql = f"SELECT Ticker,Open,Close,Low,High FROM {table_name} ORDER BY id"
+        select_sql = f"SELECT Ticker,Open,Close,Low,High,Volume FROM {table_name} ORDER BY id"
         cursor.execute(select_sql)
         table.rows.extend(cursor.fetchall())
         table.new_index = len(table.rows)
