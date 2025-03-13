@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bokeh 图表嵌入 Flask</title>
+    <!-- 引入 Bokeh 的 CSS 和 JS -->
+    <link href="https://cdn.bokeh.org/bokeh/release/bokeh-3.3.0.min.css" rel="stylesheet" type="text/css">
+    <link href="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.3.0.min.css" rel="stylesheet" type="text/css">
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.3.0.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.3.0.min.js"></script>
+</head>
+<body>
+    <h1>Bokeh 图表嵌入 Flask</h1>
+    <!-- 渲染 Bokeh 图表 -->
+    {{ div|safe }}
+    {{ script|safe }}
+</body>
+</html>

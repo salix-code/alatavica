@@ -20,7 +20,7 @@ class FCandle:
         self.max_price = 0
         self.min_price = 0
         self.line_render = []
-        self.fig.set_size_inches(10, 10)
+        self.fig.set_size_inches(20, 10)
 
     def set_data(self,data:[FCandleData]):
         total = len(data)

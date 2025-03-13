@@ -13,7 +13,7 @@ def main():
         candle_data.append(Render.FCandleData(row[1],row[2],row[3],row[4]))
 
     candle:Render.FCandle = Render.FCandle()
-    candle.set_data(candle_data[1:100])
+    candle.set_data(candle_data[1:200])
     candle.add_line(Render.FAverageLineRender(5))
     candle.add_line(Render.FMoveAverageLineRender(5))
     candle.draw()
