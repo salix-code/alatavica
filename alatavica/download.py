@@ -5,15 +5,22 @@ import pandas as pd
 
 from datetime import date,timedelta
 
+from dateutil.utils import today
+
+
 class FDownloadSetting:
-    def __init__(self):
-        pass
-    def get_interval(self):
-        pass
-    def get_start_day(self)->datetime.datetime:
-        pass
-    def get_end_day(self)->datetime.datetime:
-        pass
+    def __init__(self,interval:str):
+        super().__init__()
+        self.interval:str = interval
+        self.end_day = pd.to_datetime(today())
+        self.start_day = pd.to_datetime(today())
+    def get_interval(self)->str:
+        return self.interval
+
+    def get_start_day(self):
+        return self.start_day
+    def get_end_day(self):
+        return self.end_day
 
 class FDownload:
     def __init__(self):
@@ -35,31 +42,12 @@ class FDownload:
             # 转换为纽约时区
             data.index = data.index.tz_convert('Asia/Shanghai')
 
-            # 显示数据
-            print(data)
 
             # 保存数据到CSV文件
             #data.to_csv(f"{ticker_symbol}_minute_data_{start_data}_{end_data}.csv")
         return data
 
-class FMinuteDownloadSetting(FDownloadSetting):
-    def __init__(self,interval:str):
-        super().__init__()
-        self.interval:str = interval
-        self.max_delta_day = 60
-        if self.interval == "1m":
-            self.max_delta_day = 3
-        self.end_day = date.today()
-        self.start_day = date.today()
-    def get_interval(self)->str:
-        return self.interval
-    def since(self,end_day):
-        self.end_day = end_day
-        self.start_day = end_day - timedelta(days=self.max_delta_day)
-    def get_start_day(self):
-        return self.start_day
-    def get_end_day(self):
-        return self.end_day
+
 
 
 

@@ -1,12 +1,26 @@
 import os
 import sqlite3
+from dataclasses import dataclass
+from datetime import datetime
+from typing import List
+
+
+@dataclass
+class FCandleData:
+    time: datetime
+    begin_price : float
+    end_price : float
+    low_price : float
+    high_price: float
+    volume:float
 
 class FTable:
-    def __init__(self,table_name):
-        self.rows = []
-        self.table_name = table_name
+    def __init__(self,ticker,interval):
+        self.rows : [FCandleData] = []
+        self.ticker = ticker
+        self.interval = interval
         self.new_index = 0
-    def fetch_rows(self):
+    def fetch_rows(self) -> List[FCandleData]:
         return self.rows
     def fetch_first(self):
         return self.rows[0]
@@ -17,47 +31,39 @@ class FTable:
     def append_rows(self,rows):
         self.rows.extend(rows)
 
-    def merge_table(self,table_name,interval):
-        result_table = FTable(table_name)
-        for i in range(0,len(self.rows),interval):
-            open_price = self.rows[i][1]
-            close_price = self.rows[i + interval if i + interval < len(self.rows) else len(self.rows) - 1][2]
-            low_price = self.rows[i][3]
-            high_price = self.rows[i][4]
-
-            for j in range(1,min(interval,len(self.rows) - i)):
-                row = self.rows[i+j]
-                if row[3] < low_price:
-                    low_price = row[3]
-                if row[4] > high_price:
-                    high_price = row[4]
-            result_table.rows.append((self.rows[i][0],open_price,close_price,low_price,high_price))
-
-        return result_table
-
-
+class FDatabaseTableNameHelper:
+    def __init__(self,ticker,interval):
+        self.ticker = ticker
+        self.interval = interval
+    def get_database_name(self):
+        return self.ticker.lower() + ".db"
+    def get_table_name(self):
+        return f"_{self.interval}"
+    def get_alice_name(self):
+        return self.ticker.lower() + "." + self.interval.lower()
 
 class FDatabase:
     def __init__(self):
-        name = '20250312.db'
-        path_name = os.path.join(os.path.dirname(os.path.dirname(__file__)),name)
-
-        self.conn = sqlite3.connect(path_name)
+        self.db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),"db")
         self.tables = dict()
 
-    def get_table(self,ticker_symbol:str,interval:str) -> FTable:
-        table_name = self.format_table(ticker_symbol,interval)
-        if table_name not in self.tables:
-            self.tables[table_name] = FTable(table_name)
-            self.create_if_not_exist(table_name)
-            self.load_table(table_name)
-        return self.tables[table_name]
+    def get_table(self,ticker:str,interval:str) -> FTable:
+        name_helper = FDatabaseTableNameHelper(ticker,interval)
+        alice_name = name_helper.get_alice_name()
+        if alice_name not in self.tables:
+            self.tables[alice_name] = FTable(ticker,interval)
+            self.create_if_not_exist(ticker,interval)
+            self.load_table(ticker,interval)
+        return self.tables[alice_name]
 
-    def create_if_not_exist(self,table_name):
-        cursor = self.conn.cursor()
-        create_sql = f"CREATE TABLE IF NOT EXISTS {table_name}("
+    def create_if_not_exist(self,ticker,interval):
+        name_helper = FDatabaseTableNameHelper(ticker, interval)
+        conn = sqlite3.connect(os.path.join(self.db_path,name_helper.get_database_name()))
+
+        cursor = conn.cursor()
+        create_sql = f"CREATE TABLE IF NOT EXISTS {name_helper.get_table_name()}("
         create_sql += f"id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        create_sql += f"Ticker TEXT NOT NULL,"
+        create_sql += f"DateTime TEXT NOT NULL,"
         create_sql += f"Open FLOAT NOT NULL,"
         create_sql += f"Close FLOAT NOT NULL,"
         create_sql += f"Low FLOAT NOT NULL,"
@@ -65,37 +71,44 @@ class FDatabase:
         create_sql += f"Volume FLOAT NOT NULL"
         create_sql += ")"
         cursor.execute(create_sql)
-
         cursor.close()
-    def load_table(self,table_name):
-        table = self.tables[table_name]
-        cursor = self.conn.cursor()
-        select_sql = f"SELECT Ticker,Open,Close,Low,High,Volume FROM {table_name} ORDER BY id"
+        conn.close()
+
+    def load_table(self,ticker,interval):
+        name_helper = FDatabaseTableNameHelper(ticker, interval)
+        conn = sqlite3.connect(os.path.join(self.db_path,name_helper.get_database_name()))
+        table = self.tables[name_helper.get_alice_name()]
+        cursor = conn.cursor()
+        select_sql = f"SELECT DateTime,Open,Close,Low,High,Volume FROM {name_helper.get_table_name()} ORDER BY id"
         cursor.execute(select_sql)
-        table.rows.extend(cursor.fetchall())
+        for row in cursor.fetchall():
+            table.rows.append(FCandleData(datetime.strptime(row[0],"%Y-%m-%d %H:%M:%S"),row[1],row[2],row[3],row[4],row[5]))
         table.new_index = len(table.rows)
+        cursor.close()
+        conn.close()
 
     def save_table(self,table:FTable):
-        insert_rows = table.rows[table.new_index:]
-        cursor = self.conn.cursor()
-        table_name = table.table_name
+        name_helper = FDatabaseTableNameHelper(table.ticker, table.interval)
+        insert_rows = []
+        for x in range(table.new_index,len(table.rows)):
+            insert_rows.append((table.rows[x].time.strftime("%Y-%m-%d %H:%M:%S"),
+                                table.rows[x].begin_price,
+                                table.rows[x].end_price,
+                                table.rows[x].low_price,
+                                table.rows[x].high_price,
+                                table.rows[x].volume
+                                ))
+        conn = sqlite3.connect(os.path.join(self.db_path,name_helper.get_database_name()))
+        cursor = conn.cursor()
+        table_name = name_helper.get_table_name()
         cursor.executemany(
-            f"INSERT INTO {table_name} (Ticker,Open,Close,Low,High,Volume) VALUES (?,?,?,?,?,?)", insert_rows)
+            f"INSERT INTO {table_name} (DateTime,Open,Close,Low,High,Volume) VALUES (?,?,?,?,?,?)", insert_rows)
         table.new_index = len(table.rows)
 
-        self.conn.commit()
+        conn.commit()
         cursor.close()
+        conn.close()
 
-    def format_table(self,ticker_symbol:str,interval:str):
-        table_name = ""
-        if ticker_symbol.endswith(".HK"):
-            table_name = f"HK{ticker_symbol[1:-3]}"
-        table_name = f"{table_name}_{interval}"
-        return table_name
-
-
-    def close(self):
-        self.conn.close()
 
 if __name__ == '__main__':
     database = FDatabase()

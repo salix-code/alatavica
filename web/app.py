@@ -5,6 +5,8 @@ import bokeh.embed as embed
 from alatavica.db import FDatabase,FTable
 from dataclasses import dataclass
 from datetime import datetime
+
+#Open,Close,Low,High,Volume
 @dataclass
 class FCandleData:
     begin_price : float
@@ -52,6 +54,34 @@ def index():
 
     # 渲染模板并传递组件
     return render_template("index.html", script=script, div=div)
+
+@app.route("/analyze")
+def analyze_1():
+    ticker = "6618.HK"
+    db = FDatabase()
+    table: FTable = db.get_table(ticker, "1d")
+    db.close()
+
+    rows = table.fetch_rows()
+    selects = []
+    for i in range(1,len(rows) - 1):
+        data:FCandleData = FCandleData(rows[i][1], rows[i][2], rows[i][3], rows[i][4], rows[i][5])
+        prev:FCandleData = FCandleData(rows[i - 1][1], rows[i - 1][2], rows[i -1 ][3], rows[i -1][4], rows[i - 1][5])
+        if data.begin_price > data.end_price:
+            if data.volume > prev.volume * 2:
+                selects.append(i)
+    selects_2 = []
+    for i in selects:
+        curr: FCandleData = FCandleData(rows[i][1], rows[i][2], rows[i][3], rows[i][4], rows[i][5])
+        post:FCandleData = FCandleData(rows[i + 1][1], rows[i + 1][2], rows[i + 1 ][3], rows[i +1][4], rows[i + 1][5])
+        if post.volume > curr.volume and curr.end_price < post.end_price:
+            selects_2.append(i)
+
+
+    for k in selects_2:
+        print(rows[k])
+
+
 
 
 
