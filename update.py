@@ -1,3 +1,5 @@
+import sys
+
 from dateutil.utils import today
 
 from alatavica.db import FDatabase, FTable, FCandleData
@@ -66,17 +68,23 @@ class FDownloadRecentlyPolicy:
 
 
 
-def main():
+def main(ticker_symbol,interval):
     #p = FDownloadRecentlyPolicy("NIO","1d")
     #p = FDownloadRecentlyPolicy("3311.HK","1d")
     # 华新水泥
     #p = FDownloadRecentlyPolicy("6655.HK","1d")
     #
     #p = FDownloadRecentlyPolicy("0586.HK", "1d")
-    p = FDownloadRecentlyPolicy("3933.HK", "1d")
+    p = FDownloadRecentlyPolicy(ticker_symbol,interval)
     p.download()
 
 
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) >= 2:
+        ticker = sys.argv[1]
+        interval = sys.argv[2]
+        if ticker.endswith(".HK") and interval.endswith("d"):
+            main(ticker,interval)
+    else:
+        main("3933.HK", "1d")
