@@ -31,11 +31,16 @@ class FDownloadRecentlyPolicy:
         rows = table.fetch_rows()
 
         ago_day = end_day - pd.Timedelta(weeks=156)
+
         if len(rows) > 0:
             if ago_day <= pd.to_datetime(rows[0].time):
                 ago_day = pd.to_datetime(rows[0].time) + pd.Timedelta(days=1)
             else:
                 return
+        if self.interval == "1m":
+            max_ago_day = end_day - pd.Timedelta(days=8)
+            if ago_day < max_ago_day:
+                ago_day = max_ago_day
         download_setting = FDownloadSetting(self.interval)
         #[]
         download_setting.end_day = end_day
@@ -87,4 +92,4 @@ if __name__ == '__main__':
         if ticker.endswith(".HK") and interval.endswith("d"):
             main(ticker,interval)
     else:
-        main("3933.HK", "1d")
+        main("0570.HK", "1d")

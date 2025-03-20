@@ -2,7 +2,7 @@ from alatavica.db import FDatabase,FTable,FCandleData
 from datetime import datetime, timedelta
 
 def main():
-    ticker = "3933.HK"
+    ticker = "0570.HK"
     db = FDatabase()
     table: FTable = db.get_table(ticker, "1d")
 
