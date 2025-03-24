@@ -29,7 +29,7 @@ class FRender:
 
         rows:[FCandleData] = table.fetch_rows()
         rows.sort(key=lambda x: x.time)
-        rows = rows[len(rows)-360:]
+        rows = rows[max(0,len(rows)-360):]
         x = np.array([x for x in range(0,len(rows))])
         y = np.array([(y.begin_price + y.end_price) / 2 for y in rows ])
         height = np.array([abs(y.begin_price - y.end_price)  for y in rows ])
@@ -42,7 +42,7 @@ class FRender:
 @app.route("/")
 def index():
     # 创建 Bokeh 图表
-    ticker = "6618.HK"
+    ticker = "0570.HK"
     p = plotting.figure(title=ticker,sizing_mode = "fixed",
                         width = 5000,height = 600,
                         output_backend = "webgl",

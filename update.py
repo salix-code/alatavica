@@ -18,20 +18,13 @@ class FDownloadRecentlyPolicy:
         if day >= 6:
             start_day += pd.Timedelta(days=7 - day + 1)
         return start_day
-    def get_end_day(self,end_day):
-        day = end_day.isoweekday()
-        if day >= 6:
-            end_day -= pd.Timedelta(days=(day - 5))
-        return end_day
+
     def download(self):
         table:FTable = self.db.get_table(self.ticker_symbol,self.interval)
-        end_day = self.get_end_day(pd.to_datetime(today()))
-        end_day += pd.Timedelta(hours=8)
-
+        end_day = pd.to_datetime(today())
+        #end_day += pd.Timedelta(hours=8)
         rows = table.fetch_rows()
-
         ago_day = end_day - pd.Timedelta(weeks=156)
-
         if len(rows) > 0:
             if ago_day <= pd.to_datetime(rows[0].time):
                 ago_day = pd.to_datetime(rows[0].time) + pd.Timedelta(days=1)
@@ -45,13 +38,12 @@ class FDownloadRecentlyPolicy:
         #[]
         download_setting.end_day = end_day
         while download_setting.end_day > ago_day:
-            download_setting.start_day = self.get_start_day(download_setting.end_day - pd.Timedelta(weeks=4))
+            download_setting.start_day = download_setting.end_day - pd.Timedelta(weeks=4)
             if download_setting.start_day < ago_day:
                 download_setting.start_day = ago_day
-
-            if download_setting.start_day > download_setting.end_day:
-                download_setting.end_day = download_setting.start_day
-                continue
+                if download_setting.start_day > download_setting.end_day:
+                    download_setting.end_day = download_setting.start_day
+                    continue
 
             print(f"开始下载{download_setting.start_day} 到{download_setting.end_day}的数据")
 
@@ -66,20 +58,9 @@ class FDownloadRecentlyPolicy:
             rows.sort(key=lambda x: x.time, reverse=True)
             table.append_rows(rows)
             self.db.save_table(table)
-
-            download_setting.end_day = download_setting.start_day - pd.Timedelta(weeks=4)
-
-
-
-
+            download_setting.end_day = download_setting.start_day - pd.Timedelta(days=1)
 
 def main(ticker_symbol,interval):
-    #p = FDownloadRecentlyPolicy("NIO","1d")
-    #p = FDownloadRecentlyPolicy("3311.HK","1d")
-    # 华新水泥
-    #p = FDownloadRecentlyPolicy("6655.HK","1d")
-    #
-    #p = FDownloadRecentlyPolicy("0586.HK", "1d")
     p = FDownloadRecentlyPolicy(ticker_symbol,interval)
     p.download()
 
@@ -92,4 +73,4 @@ if __name__ == '__main__':
         if ticker.endswith(".HK") and interval.endswith("d"):
             main(ticker,interval)
     else:
-        main("0570.HK", "1d")
+        main("1816.HK", "1d")
