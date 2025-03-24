@@ -6,6 +6,7 @@ import pandas as pd
 from datetime import date,timedelta
 
 from dateutil.utils import today
+from yfinance.exceptions import YFRateLimitError
 
 
 class FDownloadSetting:
@@ -29,7 +30,10 @@ class FDownload:
         start_data = setting.get_start_day().strftime("%Y-%m-%d")
         end_data = setting.get_end_day().strftime("%Y-%m-%d")
         # 下载数据
-        data = yf.download(ticker_symbol, start=start_data, end=end_data, interval=setting.get_interval())
+        try:
+            data = yf.download(ticker_symbol, start=start_data, end=end_data, interval=setting.get_interval())
+        except YFRateLimitError as e :
+            pass
         # 检查数据是否为空
         if data.empty:
             print("没有下载到数据，请检查股票代码和日期范围。")
