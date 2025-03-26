@@ -49,22 +49,28 @@ class FDownloadRecentlyPolicy:
 
             download = FDownload()
             data = download.download(self.ticker_symbol,download_setting)
-            rows:[FCandleData] = []
-            num = 0
-            for t, row in data.iterrows():
-                rows.append(FCandleData(t, row['Open'].iloc[0], row['Close'].iloc[0],
-                             row['Low'].iloc[0], row['High'].iloc[0], row['Volume'].iloc[0]))
-                num += 1
+            #print(data.columns.tolist())
+            #('Close', '1816.HK'), ('High', '1816.HK'), ('Low', '1816.HK'), ('Open', '1816.HK'), ('Volume', '1816.HK')]
+            column_name = []
+            for c in data.columns.tolist():
+                column_name.append(c[0])
+            print("查找列名顺序:",column_name)
+            column_index = [column_name.index(c) for c in ["Open","Close","Low","High","Volume"]]
+            rows:[FCandleData] = [
+                FCandleData(row[0],row[column_index[0]],row[column_index[1]],row[column_index[2]],row[column_index[3]])
+                for row in data.itertuples ( index = True )]
+
+            for row in  rows:
+                if row.volume ==0 :
+                    print("break")
             rows.sort(key=lambda x: x.time, reverse=True)
             table.append_rows(rows)
-            self.db.save_table(table)
             download_setting.end_day = download_setting.start_day - pd.Timedelta(days=1)
+        self.db.save_table(table)
 
 def main(ticker_symbol,interval):
     p = FDownloadRecentlyPolicy(ticker_symbol,interval)
     p.download()
-
-
 
 if __name__ == '__main__':
     if len(sys.argv) >= 2:

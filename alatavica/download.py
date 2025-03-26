@@ -31,7 +31,8 @@ class FDownload:
         end_data = setting.get_end_day().strftime("%Y-%m-%d")
         # 下载数据
         try:
-            data = yf.download(ticker_symbol, start=start_data, end=end_data, interval=setting.get_interval())
+            data = yf.download(ticker_symbol, start=start_data, end=end_data,
+                               interval=setting.get_interval(),repair=True,progress=False)
         except YFRateLimitError as e :
             pass
         # 检查数据是否为空
