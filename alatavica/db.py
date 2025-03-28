@@ -1,18 +1,11 @@
 import os
 import sqlite3
-from dataclasses import dataclass
+
 from datetime import datetime
 from typing import List
 
+from datatype import FCandleData
 
-@dataclass
-class FCandleData:
-    time: datetime
-    begin_price : float
-    end_price : float
-    low_price : float
-    high_price: float
-    volume:float
 
 class FTable:
     def __init__(self,ticker,interval):
@@ -68,7 +61,8 @@ class FDatabase:
         create_sql += f"Close FLOAT NOT NULL,"
         create_sql += f"Low FLOAT NOT NULL,"
         create_sql += f"High FLOAT NOT NULL,"
-        create_sql += f"Volume FLOAT NOT NULL"
+        create_sql += f"Adjusted_Close FLOAT NOT NULL,"
+        create_sql += f"Volume BIGINT NOT NULL"
         create_sql += ")"
         cursor.execute(create_sql)
         cursor.close()
@@ -79,10 +73,10 @@ class FDatabase:
         conn = sqlite3.connect(os.path.join(self.db_path,name_helper.get_database_name()))
         table = self.tables[name_helper.get_alice_name()]
         cursor = conn.cursor()
-        select_sql = f"SELECT DateTime,Open,Close,Low,High,Volume FROM {name_helper.get_table_name()} ORDER BY id"
+        select_sql = f"SELECT DateTime,Open,Close,Low,High,Adjusted_Close,Volume FROM {name_helper.get_table_name()} ORDER BY id"
         cursor.execute(select_sql)
         for row in cursor.fetchall():
-            table.rows.append(FCandleData(datetime.strptime(row[0],"%Y-%m-%d %H:%M:%S"),row[1],row[2],row[3],row[4],row[5]))
+            table.rows.append(FCandleData(datetime.strptime(row[0],"%Y-%m-%d %H:%M:%S"),row[1],row[2],row[3],row[4],row[5],row[6]))
         table.new_index = len(table.rows)
         cursor.close()
         conn.close()
@@ -96,13 +90,14 @@ class FDatabase:
                                 table.rows[x].end_price,
                                 table.rows[x].low_price,
                                 table.rows[x].high_price,
+                                table.rows[x].adjusted_close,
                                 table.rows[x].volume
                                 ))
         conn = sqlite3.connect(os.path.join(self.db_path,name_helper.get_database_name()))
         cursor = conn.cursor()
         table_name = name_helper.get_table_name()
         cursor.executemany(
-            f"INSERT INTO {table_name} (DateTime,Open,Close,Low,High,Volume) VALUES (?,?,?,?,?,?)", insert_rows)
+            f"INSERT INTO {table_name} (DateTime,Open,Close,Low,High,Adjusted_Close,Volume) VALUES (?,?,?,?,?,?,?)", insert_rows)
         table.new_index = len(table.rows)
 
         conn.commit()
