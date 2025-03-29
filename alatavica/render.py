@@ -5,12 +5,7 @@ import matplotlib.patches as patches
 import matplotlib.lines as lines
 from dataclasses import dataclass
 
-@dataclass
-class FCandleData:
-    begin_price : float
-    end_price : float
-    low_price : float
-    high_price: float
+from alatavica.datatype import FCandleData
 
 
 class FCandle:

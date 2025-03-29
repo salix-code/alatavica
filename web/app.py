@@ -2,6 +2,7 @@ from flask import Flask, render_template
 import bokeh.plotting as plotting
 import bokeh.embed as embed
 
+from alatavica.datatype import FCandleData
 from alatavica.db import FDatabase,FTable
 from dataclasses import dataclass
 from datetime import datetime
@@ -9,14 +10,7 @@ import numpy as np
 from bokeh . models import Range1d
 from bokeh . models import ColumnDataSource , HoverTool
 
-#Open,Close,Low,High,Volume
-@dataclass
-class FCandleData:
-    begin_price : float
-    end_price : float
-    low_price : float
-    high_price: float
-    volume:float
+
 
 app = Flask(__name__)
 
@@ -36,11 +30,11 @@ class FRender:
 
         data = ColumnDataSource(data={
             'x': np.array([x + 1 for x in range(0,len(rows))]),
-            'y': np.array([(y.begin_price + y.end_price) / 2 for y in rows ]),
-            'height': np.array([abs(y.begin_price - y.end_price)  for y in rows ]),
+            'y': np.array([(y.begin_price + y.adjusted_close) / 2 for y in rows ]),
+            'height': np.array([abs(y.begin_price - y.adjusted_close)  for y in rows ]),
             'line_begin_point_y':[x.low_price for x in rows],
             'line_end_point_y':[x.high_price for x in rows],
-            'color': ["red" if data.begin_price <= data.end_price else "green" for data in rows],
+            'color': ["red" if data.begin_price <= data.adjusted_close else "green" for data in rows],
             'tip': [format_tip(x) for x in rows]}
         )
 
@@ -73,7 +67,7 @@ def get_ticker(ticker):
     return render_template("index.html", bokeh_script=script, bokeh_div=div)
 @app.route("/")
 def index():
-    return get_ticker("1816.HK")
+    return get_ticker("9690.HK")
 
 if __name__ == "__main__":
     app.run(debug=True)
