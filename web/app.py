@@ -59,13 +59,33 @@ class FRender:
         })
         self.figure.line(x='x', y='y',line_color=color, line_dash="dashed", source=data)
 
+    # 以最大阴线的实顶画水平线
     def draw_1(self,rows:[FCandleData]):
         if len(rows) < 2:
             return
 
-        
+        def add_line(a,b,num):
+            h = []
 
-        self.figure.line(x = high_value_x,y = [ rows[x].hi for x in high_value_x])
+            for i in range(0,min(len(rows),num if num > 0 else len(rows))):
+                row:FCandleData = rows[i]
+                if a(row) > b(row):
+                    n = a(row) - b(row)
+                    if len(h) >= 5:
+                        sorted(h,key=lambda x:x[1])
+                        if n > h[-1][1]:
+                            h[-1] = (i,n)
+                    else:
+                        h.append((i,n))
+
+
+            print(h)
+            self.figure.multi_line(xs=[[x[0],x[0] + 10] for x in h],ys= [[a(rows[p[0]]),a(rows[p[0]])] for p in h],
+                                   color = ['green' for x in h])
+
+        add_line(a = lambda x : x.begin_price,b = lambda x : x.adjusted_close,num = 60)
+        add_line(a = lambda x : x.adjusted_close,b = lambda x : x.begin_price,num = 60)
+
 
 
     def draw(self):
