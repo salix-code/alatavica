@@ -13,9 +13,11 @@ from bokeh . models import Range1d
 from bokeh . models import ColumnDataSource , HoverTool
 from bokeh.layouts import Column, Row
 
-
+from web.policy.policy_manager import PolicyManager
 
 app = Flask(__name__)
+
+pm = PolicyManager()
 
 def format_tip(row:FCandleData):
     return "{time}".format(time = row.time.strftime("%Y-%m-%d"))
@@ -116,6 +118,11 @@ class FRender:
         self.draw_ma(rows,120,"blue")
 
         self.draw_1(rows)
+
+        render_factory = pm.find_policy("draw_rect")
+        render = render_factory(rows)
+
+        render.draw(self.figure)
 
         volume_data = ColumnDataSource(data={
             'x' : np.array([x + 1 for x in range(0,len(rows))]),
