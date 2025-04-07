@@ -1,7 +1,6 @@
 import dataclasses
 
 from alatavica.datatype import FCandleData
-from web.policy.policy_type import FBaseRendingPolicy
 
 @dataclasses
 class FRect:
@@ -10,7 +9,7 @@ class FRect:
     ymin: float
     ymax: float
 
-class FRendingPolicy(FBaseRendingPolicy):
+class FRendingPolicy:
     def __init__(self,rows):
         super().__init__()
         self.rows:[FCandleData] = rows
