@@ -1,8 +1,8 @@
-import dataclasses
+from dataclasses import dataclass
 
 from alatavica.datatype import FCandleData
 
-@dataclasses
+@dataclass
 class FRect:
     xmin: float
     xmax: float

@@ -15,8 +15,8 @@ app = Flask(__name__)
 
 pm = PolicyManager()
 
-@app.route("/<ticker>/<policy_name>")
-def get_ticker(ticker,policy_name):
+@app.route("/<ticker>")
+def get_ticker(ticker):
     # 创建 Bokeh 图表
     ticker = "1816.HK" if ticker is None else ticker
     db = FDatabase()
@@ -27,9 +27,9 @@ def get_ticker(ticker,policy_name):
     render = FRender(ticker)
     render.draw(rows)
 
-    policy_type = pm.find_policy(policy_name)
-    policy = policy_type()
-    policy.draw(render)
+    #policy_type = pm.find_policy(policy_name)
+    #policy = policy_type()
+    #policy.draw(render)
 
 
     # 将图表转换为 HTML 组件
@@ -38,7 +38,7 @@ def get_ticker(ticker,policy_name):
     return render_template("index.html", bokeh_script = script,bokeh_div = div)
 @app.route("/")
 def index():
-    return get_ticker("9690.HK")
+    return get_ticker("soxl")
 
 if __name__ == "__main__":
     app.run(debug=True)
