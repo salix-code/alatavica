@@ -12,3 +12,8 @@ class FCandleData:
     high_price: float
     adjusted_close:float
     volume:float
+@dataclass
+class FDownloadSetting:
+    symbol:str
+    start:datetime
+    end:datetime
