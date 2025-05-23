@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 from datetime import timedelta,datetime
 
 from alatavica.datatype import FCandleData, FDownloadSetting
@@ -31,11 +32,12 @@ def main(*args):
         download_setting = FDownloadSetting(symbol_name, start_day, end_day)
         download_rows:[FCandleData] = yfinance_download(download_setting)
 
-        with_fail_data = False
-        for row in download_rows:
-            if row.begin_price == 0:
-                with_fail_data = True
-                break
+        with_fail_data = (len(download_rows) == 0)
+        if len(download_rows) > 0:
+            for row in download_rows:
+                if row.begin_price == 0:
+                    with_fail_data = True
+                    break
         if with_fail_data:
             download_rows = eod_download(download_setting)
 
@@ -43,6 +45,8 @@ def main(*args):
 
         db.save_table(table)
 
+        time.sleep(5)
+
 
 if __name__ == "__main__":
-    main()
+    main("6618.HK","9690.HK","0728.HK","2390.HK")

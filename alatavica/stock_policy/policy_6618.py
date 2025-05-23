@@ -97,7 +97,7 @@ class FPolicy_6618:
         while index < len(rows):
             if data[index - 1][0] > data[index - 1][0]:
                 total += 1
-                while 
+
             index += 1
 if __name__ == "__main__":
     FPolicy_6618().run_1()

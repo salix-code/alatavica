@@ -27,8 +27,10 @@ class FTable:
         self.rows.extend(rows)
 
 class FDatabaseTableNameHelper:
-    def __init__(self,ticker,interval):
-        self.ticker = ticker
+    def __init__(self,ticker:str,interval):
+        self.ticker = ticker.lower()
+        if self.ticker.endswith('.hk') and len(self.ticker) >= 8:
+            self.ticker = self.ticker[1:]
         self.interval = interval
     def get_database_name(self):
         return self.ticker.lower() + ".db"
