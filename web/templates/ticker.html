@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B111</title>
+    <!-- 引入 Bokeh 的 CSS 和 JS -->
+    <link href="https://cdn.bokeh.org/bokeh/release/bokeh-3.7.0.min.css" rel="stylesheet" type="text/css">
+    <link href="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.7.0.min.css" rel="stylesheet" type="text/css">
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.7.0.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.7.0.min.js"></script>
+
+    <style> /* 关键 CSS：强制全屏布局 */
+        .scroll-container {
+            width : 1200px ; /* 可视区域固定宽度 */
+            margin : 20px auto ;
+            overflow-x : auto ; /* 启用水平滚动条 */
+            border : 1px solid #ddd ;
+        }
+        /* Bokeh图表容器样式 */
+        .bk-root {
+            min-width : 5000px ; /* 与Python代码中的width=5000对应 */
+            padding : 20px ;
+        }
+        /* 隐藏纵向滚动条 */
+        ::-webkit-scrollbar { height : 8px ; background : #f5f5f5 ; }
+        ::-webkit-scrollbar-thumb { background : #2A4B7C ; border-radius : 4px ; }
+        .bk-logo { display : none !important ; }
+    </style>
+
+</head>
+<body>
+    <h1></h1>
+    <div class = "scroll-container" >
+        {{ bokeh_div|safe }} <!-- Bokeh图表 -->
+    </div >
+    {{ bokeh_script|safe }} <!-- Bokeh脚本 -->
+</body>
+</html>

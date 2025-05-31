@@ -4,30 +4,29 @@ from alatavica.db import FDatabase,FTable,FCandleData
 from datetime import datetime, timedelta
 import sys
 
-def index_previous_max_price_from(end_index,rows,num):
-    result = -1
-    for index in range(max(0,end_index - num + 1),end_index + 1):
-        if result == -1:
-            result = index
-        elif rows[index].high_price > rows[result].high_price:
-            result = index
-    return result
-
-
+def calc_volume(rows,index, num):
+    value = 0
+    for x in range(max(0,index - num),index):
+        value += rows[x].volume
+    return value / num
 
 def run(symbol_name):
     db = FDatabase()
     table: FTable = db.get_table(symbol_name, "1d")
     rows: [FCandleData] = table.fetch_rows()
 
-    data = []
-    for index in range(0,len(rows)):
-        data.append(index_previous_max_price_from(index,rows,24))
+    for index in range(1,len(rows)):
+        volume_value = calc_volume(rows,index,20)
+        if rows[index].volume > rows[index - 1].volume * 3:
+            if index <= len(rows) - 3:
+                if rows[index + 1].low_price > rows[index].low_price and rows[index + 1].low_price > rows[
+                    index].low_price:
+                    print(rows[index])
 
-    for index in range(0,len(rows)):
-        if index - data[index] > 20:
-            print(rows[data[index]])
-            print(rows[index])
+            else:
+                print("may be" ,rows[index])
+
+
 
 
 def main(*args):
@@ -43,4 +42,4 @@ def main(*args):
         print(symbol_name)
         run(symbol_name)
 if __name__ == "__main__":
-    main("6618.HK")
+    main("6618.HK","9690.HK","0728.HK","2390.HK")
