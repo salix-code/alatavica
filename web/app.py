@@ -23,16 +23,18 @@ app = Flask(__name__)
 
 pm = PolicyManager()
 
-@app.route("/<ticker>")
-def get_ticker(ticker):
+@app.route("/<symbol_name>")
+def get_ticker(symbol_name):
+    if symbol_name == "favicon.ico":
+        return
     # 创建 Bokeh 图表
-    ticker = "1816.HK" if ticker is None else ticker
+    symbol_name = "1816.HK" if symbol_name is None else symbol_name
     db = FDatabase()
-    table: FTable = db.get_table(ticker, "1d")
+    table: FTable = db.get_table(symbol_name, "1d")
     rows: [FCandleData] = table.fetch_rows()
     rows.sort(key=lambda x: x.time)
     rows = rows[max(0, len(rows) - 360):]
-    render = FRender(ticker)
+    render = FRender(symbol_name)
     render.draw(rows)
 
     #policy_type = pm.find_policy(policy_name)
@@ -46,7 +48,16 @@ def get_ticker(ticker):
     return render_template("ticker.html", bokeh_script = script,bokeh_div = div)
 @app.route("/")
 def index():
-    return render_template('index.html')
+    links = []
+    for db_name in os.listdir("../db/"):
+        if db_name.endswith(".db"):
+            ticker_name = db_name[:-3]
+            links.append({
+                'name' : ticker_name,
+            })
+
+
+    return render_template('index.html', links=links)
 
 @app.route('/update', methods=['POST'])
 def update():

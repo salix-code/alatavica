@@ -78,10 +78,7 @@ class FRender:
         add_line(a = lambda x : x.begin_price,b = lambda x : x.adjusted_close,num = 60)
         add_line(a = lambda x : x.adjusted_close,b = lambda x : x.begin_price,num = 60)
 
-
-
     def draw(self,rows:[FCandleData]):
-
         candle_data = ColumnDataSource(data={
             'x': np.array([x + 1 for x in range(0,len(rows))]),
             'y': np.array([(y.begin_price + y.adjusted_close) / 2 for y in rows ]),
@@ -97,9 +94,9 @@ class FRender:
                   x1 = 'x' , y1 = 'line_end_point_y'  ,
                   color = 'color' , line_width = 1 ,source = candle_data)
 
-        self.draw_ma(rows,60,"red")
-        self.draw_ma(rows,120,"blue")
-        self.draw_1(rows)
+        #self.draw_ma(rows,5,"yellow")
+        #self.draw_ma(rows,120,"blue")
+        #self.draw_1(rows)
         volume_data = ColumnDataSource(data={
             'x' : np.array([x + 1 for x in range(0,len(rows))]),
             'y' : np.array([x.volume / 2 for x in rows]),

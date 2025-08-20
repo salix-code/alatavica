@@ -11,7 +11,7 @@ def download(download_setting: FDownloadSetting):
     if download_setting.start is not None and download_setting.end is not None:
         url += f"&from={download_setting.start}&to={download_setting.end}"
     response = requests.get(url).json()
-
+    print(response)
     rows = [FCandleData(datetime.strptime(row['date'], "%Y-%m-%d"),
                         row['open'], row['close'], row['low'], row['high'], row['adjusted_close'], row['volume'])
             for row in response]

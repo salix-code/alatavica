@@ -84,8 +84,11 @@ class FDatabase:
         except Exception as e:
             print(select_sql)
             print(e)
+        unique_key = set()
         for row in cursor.fetchall():
-            table.rows.append(FCandleData(datetime.strptime(row[0],"%Y-%m-%d"),row[1],row[2],row[3],row[4],row[5],row[6]))
+            if row[0] not in unique_key:
+                unique_key.add(row[0])
+                table.rows.append(FCandleData(datetime.strptime(row[0],"%Y-%m-%d"),row[1],row[2],row[3],row[4],row[5],row[6]))
         table.new_index = len(table.rows)
         cursor.close()
         conn.close()

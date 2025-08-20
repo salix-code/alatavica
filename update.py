@@ -49,4 +49,4 @@ def main(*args):
 
 
 if __name__ == "__main__":
-    main("6618.HK","9690.HK","0728.HK","2390.HK")
+    main("0728.HK")

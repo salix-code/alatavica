@@ -3,11 +3,19 @@
 <head><title>模板网页</title></head>
 <body>
     <h1></h1>
+
+    <ul>
+        {% for link in links %}
+        <li><a href="{{ url_for('get_ticker',symbol_name=link.name) }}" target="_blank">{{ link.name }}</a></li>
+        {% endfor %}
+    </ul>
+
     <form method="POST" action="/update">
         <button type="submit">update</button>
     </form>
     <form method="POST" action="/search">
         <button type="submit">提交</button>
     </form>
+
 </body>
 </html>
